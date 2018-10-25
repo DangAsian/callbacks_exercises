@@ -130,7 +130,7 @@ console.log( 'The total number of transactions is:', totalTransactions );
   HINT(S):
   - Not all transactions are 'sales'.
 */
-var numSales;
+var numSales = transactions.filter(transaction => transaction.type === 'sale').length;
 
 /*
   Hey, welcome to the first question!
@@ -142,7 +142,7 @@ var numSales;
     - You can do this by:
       - Adding an `=` sign (we are *assigning* something after all)
       - Starting with the `transactions` variable (see the example question);
-      - Adding one or more methods to transform/extract the value we're looking for.
+      - Adding one or more methods to transform/extract the value we're === "purchase") looking for.
       - If your solution is correct, `numSales` should be equal to 5.
 
   You can solve the remaining questions in the same way!
@@ -158,11 +158,12 @@ console.log( 'The total number of sales is:', numSales );
 // QUESTION 02
 // --------------------------------------------------
 /*
-  Calculate the total number of 'purchases'.
+  Calculate the total number of 'puh solution requires you to operatrchases'.
 */
-var numPurchases;
+var numPurchases = transactions.filter(transaction => transaction.type === "purchase").length
 
 console.log( 'The total number of purchases is:', numPurchases );
+
 
 
 // --------------------------------------------------
@@ -174,7 +175,8 @@ console.log( 'The total number of purchases is:', numPurchases );
   HINT(S):
   - Don't forget that 'purchases' can also be made in 'cash'!
 */
-var numCashSales;
+var numCashSales = transactions.filter(transaction => transaction.type === "sale" && transaction.paymentMethod === "cash").length
+
 
 console.log( 'The total number of cash sales is:', numCashSales );
 
@@ -188,7 +190,7 @@ console.log( 'The total number of cash sales is:', numCashSales );
   HINT(S):
   - Make sure to exclude any 'sales' made by 'credit'!
 */
-var numCreditPurchases;
+var numCreditPurchases = transactions.filter(transaction => transaction.type === "purchase" && transaction.paymentMethod === "credit").length
 
 console.log( 'The total number of credit purchases is:', numCreditPurchases );
 
@@ -203,9 +205,11 @@ console.log( 'The total number of credit purchases is:', numCreditPurchases );
   HINT(S):
   - Not all transactions have a 'vendor'!
   - The assembled array should be made up of strings, not full `transaction` objects.
-  - This array is allowed to contain duplicate values.
+  - This array is allowed to contain duplicate values.sale
 */
-var allVendors;
+var allVendors = transactions.filter(transaction => transaction.vendor)
+                             .map(transaction => transaction.vendor);
+
 
 console.log( 'The vendors are:', allVendors );
 
@@ -222,7 +226,14 @@ console.log( 'The vendors are:', allVendors );
   - The assembled array should be made up of strings, not full `transaction` objects.
   - Make sure that the resulting array *does not* include any duplicates.
 */
-var uniqueCustomers;
+var uniqueCustomers = transactions.filter(transaction => transaction.customer).reduce(function(accumulate, currentValue){
+  if (!accumulate.includes(currentValue.customer)){
+    accumulate.push(currentValue.customer)
+  }
+  return accumulate
+
+}, []);
+
 
 console.log( 'The unique customers are:', uniqueCustomers );
 
@@ -240,7 +251,20 @@ console.log( 'The unique customers are:', uniqueCustomers );
   - There may be more than 1 'sale' that includes 5 or more items.
   - Individual transactions do not have either `name` or `numItems` properties, we'll have to add them to the output.
 */
-var bigSpenders;
+// var bigSpenders = transactions.filter(transaction => transaction.type === 'sale').map(function(transaction){
+//   let num_of_items = transaction.items.length
+//   if (num_of_items > 5){
+//     return
+//   }
+//
+// });
+
+var bigSpenders = transactions.filter(transaction => transaction.type === 'sale' && transaction.items.length >= 5)
+.map(function(transaction){
+  return {name: transaction.customer,
+          numItems: transaction.items.length,
+         }
+})
 
 console.log( 'The "big spenders" are:', bigSpenders );
 
@@ -254,7 +278,14 @@ console.log( 'The "big spenders" are:', bigSpenders );
   HINT(S):
   - Transactions don't have 'prices', but their 'items' do!
 */
-var sumSales;
+var sumSales = transactions.filter(transaction => transaction.type === 'sale')[0].items.map(function(item){return item.price})
+.reduce(function(accumulate, currentValue){
+  return accumulate + currentValue;
+}, 0);
+// transactions[0].items.reduce(function(accumulate, currentValue){
+//   accumulate + currentValue.price;
+//   return accumulate;
+// },0);
 
 console.log( 'The sum of all sales is:', sumSales );
 
@@ -270,7 +301,9 @@ console.log( 'The sum of all sales is:', sumSales );
   - Make sure to include 'price' information from *all* purchases.
 */
 
-var sumPurchases;
+var sumPurchases = transactions.filter(transaction => transaction.type === 'purchase').map(function(transaction){return transaction.items[0].price})
+.reduce(function(accumulate, currentValue){return accumulate + currentValue}, 0)
+
 
 console.log( 'The sum of all purhcases is:', sumPurchases );
 
@@ -283,14 +316,23 @@ console.log( 'The sum of all purhcases is:', sumPurchases );
 
   This number will be positive if the sum of the sales is greater than the amount spent on purchases.
 
-  Otherwise, this number will be negative.
+  Otherwise, this number will be negative..reduce(function(accumlate, currentValue){
+  if (currentValue > accumulate){
+    return currentValue;
+  }
+}, 0)
 
   HINT(S):
   - Unlike 'QUESTION 08' and 'QUESTION 09', here we're interested in both 'sale' and 'purchase' transactions.
 */
-var netProfit;
+var sumAllSales = transactions.filter(transaction => transaction.type === 'sale').map(function(transaction){return transaction.items[0].price})
+.reduce(function(accumulate, currentValue){return accumulate + currentValue}, 0)
 
-console.log( 'The net profit is:', netProfit );
+var netProfit = function(add1, add2){
+  return add1 + add2
+}
+
+console.log( 'The net profit is:', netProfit(sumAllSales, sumPurchases) );
 
 
 // --------------------------------------------------
@@ -302,7 +344,14 @@ console.log( 'The net profit is:', netProfit );
   HINTS:
   - The result of this calculation should be a number (not an array, object, or other data type).
 */
-var mostItems;
+var mostItems = transactions.filter(transaction => transaction.type === 'sale').map(function(transaction){return transaction.items.length})
+.reduce(function(accumulate, currentValue){
+  if (currentValue > accumulate){
+    return currentValue;
+  } else {
+    return accumulate;
+  }
+})
 
 console.log( 'The most items sold in a single transaction is:', mostItems );
 
@@ -313,6 +362,13 @@ console.log( 'The most items sold in a single transaction is:', mostItems );
 /*
   Calculate the sum of the 'purchase' with the fewest items.
 */
-var sumOfSmallestPurchase;
+var sumOfSmallestPurchase = transactions.filter(transaction => transaction.type === 'purchase').map(function(transaction){return transaction.items.length})
+.reduce(function(accumulate, currentValue){
+  if (currentValue < accumulate){
+    return currentValue;
+  } else {
+    return accumulate
+  }
+});
 
 console.log( 'The sum of the smallest purchase is:', sumOfSmallestPurchase );
